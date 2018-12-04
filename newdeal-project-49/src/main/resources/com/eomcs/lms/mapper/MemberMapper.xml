@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="MemberDAO">
+ 
+  <resultMap type="member" id="memberMap">
+    <id column="mno" property="no"/>
+    <result column="name" property="name"/>
+    <result column="email" property="email"/>
+    <result column="password" property="password"/>
+    <result column="photo" property="photo"/>
+    <result column="tel" property="tel"/>
+    <result column="Date" property="registeredDate"/>
+    
+    
+  </resultMap>
+
+
+  <select id="findByEmailPassword" resultMap="memberMap" parameterType="map">
+    select
+      mno,
+      name,
+      email,
+      photo
+    from member
+    where email=#{email} and pwd=#{password}
+  
+  </select>
+
+  
+</mapper>
