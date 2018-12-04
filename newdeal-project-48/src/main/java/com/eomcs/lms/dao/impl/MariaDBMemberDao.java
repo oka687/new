@@ -17,12 +17,9 @@ public class MariaDBMemberDao implements MemberDao {
         Connection con = DriverManager.getConnection(
             "jdbc:mariadb://localhost:3306/studydb", 
             "study", "1111");
-        Statement stmt = con.createStatement();
+        PrepardStatement stmt = con.prepardStatement();
         ResultSet rs = stmt.executeQuery(
-            "select mno,name,email,photo"
-            + " from member"
-            + " where email='" + email 
-            + "' and pwd='" + password + "'");) {
+            "select mno,name,email,photo from member where email= ? and pwd= ?");) {
       
       if (rs.next()) {
         Member member = new Member();

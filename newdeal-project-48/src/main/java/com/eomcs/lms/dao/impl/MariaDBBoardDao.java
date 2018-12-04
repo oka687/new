@@ -2,6 +2,7 @@ package com.eomcs.lms.dao.impl;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -45,11 +46,10 @@ public class MariaDBBoardDao implements BoardDao {
         Connection con = DriverManager.getConnection(
             "jdbc:mariadb://localhost:3306/studydb", 
             "study", "1111");
-        Statement stmt = con.createStatement();
-        ResultSet rs = stmt.executeQuery(
-            "select bno, cont, cdt, view, mno, lno"
-            + " from board"
-            + " where bno=" + no);) {
+        PreparedStatement stmt = con.prepareStatement("select bno, cont, cdt, view, mno, lno "
+            + "from board where bno= ?");)
+        
+   
       
       if (rs.next()) {
         Board board = new Board();
@@ -72,31 +72,33 @@ public class MariaDBBoardDao implements BoardDao {
         Connection con = DriverManager.getConnection(
         "jdbc:mariadb://localhost:3306/studydb", 
         "study", "1111");
-        Statement stmt = con.createStatement();) {
+        PreparedStatement stmt = con.prepareStatement("insert into board(cont,mno,lno)"
+            + " values(?,?,?)");) {
 
+      stmt.setString(1,board.getContents());
+      stmt.setInt(2,board.getWriterNo());
+      stmt.setInt(3, board.getLessonNo());
+      
+      
       // SQL을 서버에 전송 
-      return stmt.executeUpdate("insert into board(cont,mno,lno)"
-          + " values('" + board.getContents() + "',"
-          + board.getWriterNo() + ","
-          + board.getLessonNo() + ")");
+      return stmt.executeUpdate();
     }
   }
   
   public int update(Board board) throws Exception {
     Connection con = null;
-    Statement stmt = null;
+    PreparedStatement stmt = null;
     
     try {
       DriverManager.registerDriver(new Driver());
       con = DriverManager.getConnection(
           "jdbc:mariadb://localhost:3306/studydb", 
           "study", "1111");
-      stmt = con.createStatement();
+      stmt = con.prepareStatement("update board set cont=? where bno=?");
       
-      return stmt.executeUpdate(
-          "update board set cont='" + 
-          board.getContents() + 
-          "' where bno=" + board.getNo());
+      stmt.setString(1, board.getContents());
+      stmt.setInt(2,board.getNo());
+      return stmt.executeUpdate();
       
     } finally {
       try {stmt.close();} catch (Exception e) {}
@@ -106,16 +108,14 @@ public class MariaDBBoardDao implements BoardDao {
   
   public int delete(int no) throws Exception {
     Connection con = null;
-    Statement stmt = null;
+    PreparedStatement stmt = null;
     
     try {
       DriverManager.registerDriver(new Driver());
       con = DriverManager.getConnection(
           "jdbc:mariadb://localhost:3306/studydb", 
           "study", "1111");
-      stmt = con.createStatement();
-
-      return stmt.executeUpdate("delete from board where bno=" + no);
+      stmt = con.prepareStatement("delete from board where bno=?");
       
     } finally {
       try {stmt.close();} catch (Exception e) {}

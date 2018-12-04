@@ -14,6 +14,9 @@ public class MariaDBBoardDao implements BoardDao {
   
   public List<Board> findAll() throws Exception {
     DriverManager.registerDriver(new Driver());
+     
+    
+    
     
     try (
         Connection con = DriverManager.getConnection(
