@@ -3,6 +3,7 @@ package com.eomcs.lms.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -10,9 +11,11 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.crypto.KeySelector.Purpose;
 import org.springframework.context.ApplicationContext;
 import com.eomcs.lms.dao.BoardDao;
 import com.eomcs.lms.domain.Board;
+
 
 //이 서블릿을 만들었으면 톰캣 서버에 알려줘야 한다.
 //서블릿에 URL을 부여한다. URL은 항상'/'로 시작해야 한다.
@@ -34,8 +37,11 @@ public class BoardListServlet extends HttpServlet{
     ServletContext sc = this.getServletContext();
     iocContainer = 
         (ApplicationContext) sc.getAttribute("iocContainer");
+
+    
     try {
       boardDao = iocContainer.getBean(BoardDao.class);
+
     } catch (Exception e) {
       // TODO: handle exception
     }
@@ -45,24 +51,23 @@ public class BoardListServlet extends HttpServlet{
   public void doGet(HttpServletRequest req, HttpServletResponse res)
       throws ServletException, IOException {
 
-    res.setContentType("text/plain;charset=UTF-8");
-    PrintWriter out = res.getWriter();
-    out.println("게시물 목록(김무균)"); //클라이언트 요청이 들어올 때마다 실행된다.
+ 
     //boarddao 객체를 꺼내기 위해 IoC 컨테이너를 꺼낸다.
     try {
-
-
+ 
       List<Board> list = boardDao.findAll();
-
-      for (Board board : list) {
-        out.printf("%3d, %-20s, %s, %d\n", 
-            board.getNo(), 
-            board.getContents(), 
-            board.getCreatedDate(), 
-            board.getViewCount());
-      }
+     
+      //게시물 목록을 JSP가 사용할 수 있도록 보관소 저장한다.
+      req.setAttribute("list", list);
+       
+      //JSP로 실행을 위임한다.
+      //출력 콘텐트의 타입을 인클루드로 하는 이유는
+      RequestDispatcher rd = req.getRequestDispatcher("/board/list.jsp");
+      
+      res.setContentType("text/html;charset=UTF-8");
+     rd.include(req,res);
     } catch (Exception e) {
-
+      throw new ServletException(e);
     }
 
   }
